@@ -1,16 +1,23 @@
-
-import React, { use } from "react";
+import React, { use, useState } from "react";
 import { FaFlag, FaUserCircle, FaDollarSign } from "react-icons/fa";
 
-const AvailablePlayers = ({ playerPromise }) => {
+const AvailablePlayers = ({
+  playerPromise,
+  setAvailBalance,
+  setSelectedCount,
+  setInformation,
+}) => {
   const playerData = use(playerPromise);
+
+  // const [isSeleted, SetIsSeleted] = useState(0); // Counter for selected players
+  const [selectedPlayers, setSelectedPlayers] = useState({});
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
       {playerData.map((p) => (
         <div
           key={p.player_name}
-          className="card bg-base-100 shadow-md transition-transform hover:scale-[1.02]"
+          className="card bg-base-100 shadow-md transition-transform hover:scale-[1.13]"
         >
           <figure className="h-56 overflow-hidden">
             <img
@@ -56,7 +63,40 @@ const AvailablePlayers = ({ playerPromise }) => {
                 <FaDollarSign className="text-green-500" />
                 {p.price}
               </p>
-              <button className="btn btn-primary btn-sm">Choose Player</button>
+              <button
+                disabled={selectedPlayers[p.player_name]}
+                onClick={() => {
+                  const numericPrice = Number(
+                    p.price.replace(/[^0-9.-]+/g, "")
+                  );
+                  if (!isNaN(numericPrice)) {
+                    setSelectedPlayers((prev) => ({
+                      ...prev,
+                      [p.player_name]: true,
+                    }));
+                    setAvailBalance(
+                      (prevBalance) => prevBalance - numericPrice
+                    );
+                    setSelectedCount((prevCount) => {
+                      const newCount = prevCount + 1;
+                      console.log(newCount);
+                      return newCount;
+                    });
+                    setInformation((prevInfo) => [
+                      ...prevInfo,
+                      {
+                        player_image: p.player_image,
+                        player_name: p.player_name,
+                      },
+                    ]);
+                  } else {
+                    alert("Invalid price format");
+                  }
+                }}
+                className="btn btn-primary btn-sm"
+              >
+                {selectedPlayers[p.player_name] ? "Selected" : "Choose Player"}
+              </button>
             </div>
           </div>
         </div>
